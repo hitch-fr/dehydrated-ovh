@@ -48,8 +48,8 @@ else
   fi
 fi
 
-# List of expected keys in the
-# OVH credentials file
+# Store the list of expected keys
+# in the OVH credentials file
 ovh_expected_keys=(
   'dns_ovh_endpoint'
   'dns_ovh_application_key'
@@ -57,6 +57,55 @@ ovh_expected_keys=(
   'dns_ovh_consumer_key'
 );
 
-# The amount of expected keys in
-# the OVH credentials file
+# Store the amount of expected keys
+# in the OVH credentials file
 ovh_expected_keys_len=${#ovh_expected_keys[@]};
+
+# Store the content of the
+# OVH credentials file
+lines=$( cat $OVH_HOOK_CREDENTIALS );
+
+# Loop through the credentials file and
+# create variables from expected keys
+while IFS= read -r line
+do
+  line=$( echo "${line}" | sed 's/[[:space:]]//g' );
+
+  if [[ $line == "" ]] || [ ${line::1} == "#" ]
+  then
+    continue;
+  fi
+
+  for (( i=0; i<$ovh_expected_keys_len; i++ ));
+  do
+    expected_key=${ovh_expected_keys[ $i ]};
+
+    if [[ "${line}" == "$expected_key=" ]]
+    then
+      echo "WARNING: Empty value found in the credentials file; KEY: $expected_key";
+      break;
+    fi
+
+    if [[ $line == "$expected_key="* ]]
+    then
+      parts=($(explode "=" "${line}"));
+      key="$( echo ${parts[0]} | tr '[:upper:]' '[:lower:]' )";
+      value="${parts[1]}";
+
+      readonly "${key}"="$value";
+      
+      if [[ "${value}" == *"OVH_"* ]]
+      then
+        echo "WARNING: $expected_key is probably wrong you have to replace it with your own key";
+      fi
+    fi
+
+  done
+
+done <<< "$lines"
+
+# Clear variables that are
+# no longer needed
+unset -v lines;
+unset -v ovh_expected_keys;
+unset -v ovh_expected_keys_len;
