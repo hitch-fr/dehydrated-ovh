@@ -218,8 +218,22 @@ function send(){
         --data "$body";
 }
 
-# Create a challenge record with the value of the given ${3}
-# token in the dns zone corresponding to the given domain
+# Delete the record of the given ${2} ID in the OVH
+# dns zone corresponding to the given ${1} domain
+function delete_record() {
+  local DOMAIN="${1}" ID="${2}"
+  local dns_zone=$( domain $DOMAIN );
+
+  local query="domain/zone/$dns_zone/record/$ID";
+  send "DELETE" $query &> /dev/null;
+
+  # REFRESH ZONE
+  query="domain/zone/$dns_zone/refresh";
+  send "POST" $query &> /dev/null;
+}
+
+# Create a challenge record with the value of the given ${3} token
+# in the OVH dns zone corresponding to the given ${1} domain
 function deploy_challenge() {
   local DOMAIN="${1}" TOKEN_FILENAME="${2}" TOKEN_VALUE="${3}"
 
