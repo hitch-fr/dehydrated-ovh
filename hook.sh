@@ -26,24 +26,24 @@ readonly rootdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )";
 # Directory path to store the identifiers of the DNS records to be cleaned
 readonly ovh_record_ids_dir="$rootdir/.record_ids";
 
-# Check the existence of the credentials file
+# Loading utility functions
+source "$rootdir/utils.sh";
+
+# Check the credentials file existence
 if [[ ! -z ${OVH_HOOK_CREDENTIALS+x} ]]
 then
-  if [[ ! -f $OVH_HOOK_CREDENTIALS ]]
+  if ! is_file $OVH_HOOK_CREDENTIALS
   then
-    echo "ERROR: OVH credentials file not found : $OVH_HOOK_CREDENTIALS";
+    echo "ERROR: OVH credentials file not found. Please create the file $OVH_HOOK_CREDENTIALS";
     exit 1;
   fi
 else
   local_ovh_credentials="$rootdir/ovh-credentials";
-  if [[ ! -f $local_ovh_credentials ]]
+  if ! is_file $local_ovh_credentials
   then
-    echo "ERROR: OVH credentials file path not set. Please create a file named $local_ovh_credentials or export \$OVH_HOOK_CREDENTIALS";
+    echo "ERROR: OVH credentials file not found. Please create the file $local_ovh_credentials";
     exit 1;
   else
     OVH_HOOK_CREDENTIALS="$local_ovh_credentials";
   fi
 fi
-
-# Loading utility functions
-source "$rootdir/utils.sh";
