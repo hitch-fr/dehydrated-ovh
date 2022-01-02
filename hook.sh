@@ -141,3 +141,20 @@ then
     echo "ERROR: The dns_ovh_consumer_key key is required";
     exit 1;
 fi
+
+# Return the api url corresponding to
+# the dns_ovh_endpoint variable
+function api_url(){
+
+  declare -A ENDPOINTS;
+  ENDPOINTS['ovh-eu']="https://eu.api.ovh.com/$ovh_api_version";
+  ENDPOINTS['ovh-ca']="https://ca.api.ovh.com/$ovh_api_version";
+  ENDPOINTS['ovh-us']="https://api.us.ovhcloud.com/$ovh_api_version";
+  ENDPOINTS['kimsufi-eu']="https://eu.api.kimsufi.com/$ovh_api_version";
+  ENDPOINTS['kimsufi-ca']="https://ca.api.kimsufi.com/$ovh_api_version";
+  ENDPOINTS['soyoustart-eu']="https://eu.api.soyoustart.com/$ovh_api_version";
+  ENDPOINTS['soyoustart-ca']="https://ca.api.soyoustart.com/$ovh_api_version";
+  ENDPOINTS['runabove-ca']="https://api.runabove.com/$ovh_api_version";
+
+  echo "${ENDPOINTS[$dns_ovh_endpoint]}";
+}
