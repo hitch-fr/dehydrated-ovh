@@ -17,7 +17,7 @@ set -o pipefail
 # OVH api version to use. Currently only 1.0 is available
 readonly ovh_api_version='1.0';
 
-# DNS record prefix (subdomain)
+# DNS challenge record prefix (subdomain)
 readonly challenge_record_name='_acme-challenge';
 
 # Path of the directory that contains this script
@@ -25,3 +25,22 @@ readonly rootdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )";
 
 # Directory path to store the identifiers of the DNS records to be cleaned
 readonly ovh_record_ids_dir="$rootdir/.record_ids";
+
+# Check the existence of the credentials file
+if [[ ! -z ${OVH_HOOK_CREDENTIALS+x} ]]
+then
+  if [[ ! -f $OVH_HOOK_CREDENTIALS ]]
+  then
+    echo "ERROR: OVH credentials file not found : $OVH_HOOK_CREDENTIALS";
+    exit 1;
+  fi
+else
+  local_ovh_credentials="$rootdir/ovh-credentials";
+  if [[ ! -f $local_ovh_credentials ]]
+  then
+    echo "ERROR: OVH credentials file path not set. Please create a file named $local_ovh_credentials or export \$OVH_HOOK_CREDENTIALS";
+    exit 1;
+  else
+    OVH_HOOK_CREDENTIALS="$local_ovh_credentials";
+  fi
+fi
