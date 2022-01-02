@@ -20,32 +20,3 @@ function explode() {
 
     unset IFS delimiter string;
 }
-
-# Extract domain.tld string from any
-# given subdomain.domain.tld as ${1}
-function domain(){
-  local DOMAIN="${1}";
-
-  local parts=($(explode "." "${DOMAIN}"));
-  echo "${parts[-2]}.${parts[-1]}";
-}
-
-# Extract subdomains string from any
-# given subdomain.domain.tld as ${1}
-function subdomain(){
-  local DOMAIN="${1}";
-
-  local parts=($(explode "." "${DOMAIN}"))
-  unset parts[-1];
-  unset parts[-1];
-
-  local subdomain="";
-  for part in ${parts[*]}
-  do
-    subdomain+="$part."
-  done
-
-  # removing the trailing point
-  subdomain=${subdomain::-1};
-  echo $subdomain;
-}

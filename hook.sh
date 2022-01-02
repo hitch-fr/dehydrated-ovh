@@ -11,7 +11,7 @@ set -f # disable globbing
 set -e # exit on script fail
 set -E # ERR trap not fire in certain scenarios with -e only
 set -u # exit on var error
-set -x # print commands before exec (debug)
+# set -x # print commands before exec (debug)
 set -o pipefail
 
 # OVH api version to use. Currently only 1.0 is available
@@ -159,20 +159,53 @@ function api_url(){
   echo "${ENDPOINTS[$dns_ovh_endpoint]}";
 }
 
+# Return OVH dns zone name of the
+# given ${1} subdomain or domain
+function dns_zone(){
+  local DOMAIN="${1}";
+
+  local parts=($(explode "." "${DOMAIN}"));
+  echo "${parts[-2]}.${parts[-1]}";
+}
+
+# Return challenge record string as it should be in the
+# ovh dns zone of the given ${1} subdomain or domain
+function challenge_record(){
+  local DOMAIN="${1}";
+
+  local parts=($(explode "." "${DOMAIN}"))
+  unset parts[-1];
+  unset parts[-1];
+
+  local record="";
+  for part in ${parts[*]}
+  do
+    record+="$part."
+  done
+
+  if [[ ! -z ${challenge_record_name+x} ]]
+  then
+    record="$challenge_record_name.$record";
+  fi
+
+  # removing the trailing point
+  record=${record::-1};
+  echo $record;
+}
+
 # Wait till the given ${2} token is found
 # in the given domain ${1} TXT records
 function check_dns_propagation() {
   local DOMAIN="${1}" TOKEN="${2}";
 
-  local dns_zone=$( domain $DOMAIN );
-  local subdomain=$( subdomain $DOMAIN );
-  local full_domain="$challenge_record_name.$subdomain.$dns_zone";
-  
+  local dns_zone=$( dns_zone $DOMAIN );
+  local record_name=$( challenge_record $DOMAIN );
+
   while [[ true ]]
   do
     sleep 5;
     local SOA=$( dig +short SOA $dns_zone| cut -d' ' -f1);
-    local tokens=$( nslookup -type=TXT "$full_domain" $SOA );
+    local tokens=$( nslookup -type=TXT "$record_name.$dns_zone" $SOA );
 
     while IFS= read -r line
     do
@@ -223,7 +256,7 @@ function send(){
 function delete_record() {
   local DOMAIN="${1}" ID="${2}"
 
-  local dns_zone=$( domain $DOMAIN );
+  local dns_zone=$( dns_zone $DOMAIN );
 
   # SEND REQUEST
   local query="domain/zone/$dns_zone/record/$ID";
@@ -239,12 +272,11 @@ function delete_record() {
 function deploy_challenge() {
   local DOMAIN="${1}" TOKEN_FILENAME="${2}" TOKEN_VALUE="${3}"
 
-  local dns_zone=$( domain $DOMAIN );
-  local subdomain=$( subdomain $DOMAIN );
+  local dns_zone=$( dns_zone $DOMAIN );
+  local dns_record=$( challenge_record $DOMAIN );
 
   local query="domain/zone/$dns_zone/record";
   local field_type="TXT";
-  local dns_record="$challenge_record_name.$subdomain";
   local record_value=$TOKEN_VALUE;
 
   local json='{"fieldType":"%s","subDomain":"%s","target":"%s"}\n';
