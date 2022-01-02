@@ -217,3 +217,34 @@ function send(){
         --header "X-Ovh-Consumer: $dns_ovh_consumer_key" \
         --data "$body";
 }
+
+# Create a challenge record with the value of the given ${3}
+# token in the dns zone corresponding to the given domain
+function deploy_challenge() {
+  local DOMAIN="${1}" TOKEN_FILENAME="${2}" TOKEN_VALUE="${3}"
+
+  local dns_zone=$( domain $DOMAIN );
+  local subdomain=$( subdomain $DOMAIN );
+
+  local query="domain/zone/$dns_zone/record";
+  local field_type="TXT";
+  local dns_record="$challenge_record_name.$subdomain";
+  local record_value=$TOKEN_VALUE;
+
+  local json='{"fieldType":"%s","subDomain":"%s","target":"%s"}\n';
+  local body=$( printf "$json" "$field_type" "$dns_record" "$record_value");
+
+  local response=$( send "POST" $query $body );
+
+  local id=$(echo $response | grep -zoP '"id":\s*\K[^\s,]*(?=\s*[,}])' | tr -d "\0");
+  echo $id >> "$ovh_record_ids_dir/$DOMAIN.ids";
+
+  mkdir -p $ovh_record_ids_dir;
+
+  # REFRESH ZONE
+  query="domain/zone/$dns_zone/refresh";
+  send "POST" $query &>/dev/null;
+
+  # CHECK RECORD
+  check_dns_propagation $DOMAIN $TOKEN_VALUE;
+}
