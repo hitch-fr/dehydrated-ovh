@@ -186,3 +186,34 @@ function check_dns_propagation() {
     echo " + The challenge token is not yet deployed, retrying in 5 secs";
   done
 }
+
+# Send the given ${2} request of the given ${1} method
+# with an optionally given ${3} json to the OVH api
+function send(){
+    local method="${1}" query="${2}";
+
+    if [[ -z ${3+x} ]]
+    then
+        local json='{}\n';
+        body=$( printf "$json" );
+    else
+        body="${3}"
+    fi
+    
+    local endpoint=$( api_url );
+
+    query="$endpoint/$query";
+
+    local auth_time=$(curl -s $endpoint/auth/time);
+    local signature=$dns_ovh_application_secret"+"$dns_ovh_consumer_key"+"$method"+"$query"+"$body"+"$auth_time;
+    signature='$1$'$(echo -n $signature | openssl dgst -sha1 -hex | cut -f 2 -d ' ' );
+
+    # curl --connect-timeout 2.37 https://example.com/
+    curl --silent --request $method $query \
+         --header "Content-Type: application/json" \
+         --header "X-Ovh-Application: $dns_ovh_application_key" \
+         --header "X-Ovh-Timestamp: $auth_time" \
+         --header "X-Ovh-Signature: $signature" \
+         --header "X-Ovh-Consumer: $dns_ovh_consumer_key" \
+         --data "$body";
+}
