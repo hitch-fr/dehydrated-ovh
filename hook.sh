@@ -48,10 +48,15 @@ else
   fi
 fi
 
-# Array of expected OVH credential keys
+# List of expected keys in the
+# OVH credentials file
 ovh_expected_keys=(
   'dns_ovh_endpoint'
   'dns_ovh_application_key'
   'dns_ovh_application_secret'
   'dns_ovh_consumer_key'
 );
+
+# The amount of expected keys in
+# the OVH credentials file
+ovh_expected_keys_len=${#ovh_expected_keys[@]};
