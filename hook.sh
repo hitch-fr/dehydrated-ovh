@@ -122,24 +122,24 @@ fi
 # was not found in OVH credentials file
 if [[ -z ${dns_ovh_application_key+x} ]]
 then
-    echo "ERROR: The dns_ovh_application_key key is required";
-    exit 1;
+  echo "ERROR: The dns_ovh_application_key key is required";
+  exit 1;
 fi
 
 # Stop the script if dns_ovh_application_secret
 # was not found in OVH credentials file
 if [[ -z ${dns_ovh_application_secret+x} ]]
 then
-    echo "ERROR: The dns_ovh_application_secret key is required";
-    exit 1;
+  echo "ERROR: The dns_ovh_application_secret key is required";
+  exit 1;
 fi
 
 # Stop the script if dns_ovh_consumer_key
 # was not found in OVH credentials file
 if [[ -z ${dns_ovh_consumer_key+x} ]]
 then
-    echo "ERROR: The dns_ovh_consumer_key key is required";
-    exit 1;
+  echo "ERROR: The dns_ovh_consumer_key key is required";
+  exit 1;
 fi
 
 # Return the api url corresponding to
@@ -190,30 +190,30 @@ function check_dns_propagation() {
 # Send the given ${2} request of the given ${1} method
 # with an optionally given ${3} json to the OVH api
 function send(){
-    local method="${1}" query="${2}";
+  local method="${1}" query="${2}";
 
-    if [[ -z ${3+x} ]]
-    then
-        local json='{}\n';
-        body=$( printf "$json" );
-    else
-        body="${3}"
-    fi
-    
-    local endpoint=$( api_url );
+  if [[ -z ${3+x} ]]
+  then
+      local json='{}\n';
+      body=$( printf "$json" );
+  else
+      body="${3}"
+  fi
 
-    query="$endpoint/$query";
+  local endpoint=$( api_url );
 
-    local auth_time=$(curl -s $endpoint/auth/time);
-    local signature=$dns_ovh_application_secret"+"$dns_ovh_consumer_key"+"$method"+"$query"+"$body"+"$auth_time;
-    signature='$1$'$(echo -n $signature | openssl dgst -sha1 -hex | cut -f 2 -d ' ' );
+  query="$endpoint/$query";
 
-    # curl --connect-timeout 2.37 https://example.com/
-    curl --silent --request $method $query \
-         --header "Content-Type: application/json" \
-         --header "X-Ovh-Application: $dns_ovh_application_key" \
-         --header "X-Ovh-Timestamp: $auth_time" \
-         --header "X-Ovh-Signature: $signature" \
-         --header "X-Ovh-Consumer: $dns_ovh_consumer_key" \
-         --data "$body";
+  local auth_time=$(curl -s $endpoint/auth/time);
+  local signature=$dns_ovh_application_secret"+"$dns_ovh_consumer_key"+"$method"+"$query"+"$body"+"$auth_time;
+  signature='$1$'$(echo -n $signature | openssl dgst -sha1 -hex | cut -f 2 -d ' ' );
+
+  # curl --connect-timeout 2.37 https://example.com/
+  curl --silent --request $method $query \
+        --header "Content-Type: application/json" \
+        --header "X-Ovh-Application: $dns_ovh_application_key" \
+        --header "X-Ovh-Timestamp: $auth_time" \
+        --header "X-Ovh-Signature: $signature" \
+        --header "X-Ovh-Consumer: $dns_ovh_consumer_key" \
+        --data "$body";
 }
