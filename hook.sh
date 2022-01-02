@@ -222,8 +222,10 @@ function send(){
 # dns zone corresponding to the given ${1} domain
 function delete_record() {
   local DOMAIN="${1}" ID="${2}"
+
   local dns_zone=$( domain $DOMAIN );
 
+  # SEND REQUEST
   local query="domain/zone/$dns_zone/record/$ID";
   send "DELETE" $query &> /dev/null;
 
@@ -248,8 +250,10 @@ function deploy_challenge() {
   local json='{"fieldType":"%s","subDomain":"%s","target":"%s"}\n';
   local body=$( printf "$json" "$field_type" "$dns_record" "$record_value");
 
+  # SEND REQUEST
   local response=$( send "POST" $query $body );
 
+  # STORE RESPONSE ID IN FILE
   local id=$(echo $response | grep -zoP '"id":\s*\K[^\s,]*(?=\s*[,}])' | tr -d "\0");
   echo $id >> "$ovh_record_ids_dir/$DOMAIN.ids";
 
@@ -261,4 +265,31 @@ function deploy_challenge() {
 
   # CHECK RECORD
   check_dns_propagation $DOMAIN $TOKEN_VALUE;
+}
+
+# Clean all challenges record for the given ${1} domain
+# with the ids previously registered in the ids file
+function clean_challenge() {
+  local DOMAIN="${1}" TOKEN_FILENAME="${2}" TOKEN_VALUE="${3}"
+
+  if [[ -f "$ovh_record_ids_dir/$DOMAIN.ids" ]]
+  then
+    local ids=$( cat "$ovh_record_ids_dir/$DOMAIN.ids" );
+
+    while IFS= read -r id
+    do
+      if [[ $id =~ [0-9] ]]
+      then
+        delete_record $DOMAIN $id;
+        sed -i "/$id/d" "$ovh_record_ids_dir/$DOMAIN.ids";
+      fi
+    done <<< "$ids"
+
+    sed -i '/^[[:space:]]*$/d' "$ovh_record_ids_dir/$DOMAIN.ids";
+    if [[ ! -s "$ovh_record_ids_dir/$DOMAIN.ids" ]]
+    then
+      rm -f "$ovh_record_ids_dir/$DOMAIN.ids";
+    fi
+  fi
+  return 0;
 }
