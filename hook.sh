@@ -158,3 +158,31 @@ function api_url(){
 
   echo "${ENDPOINTS[$dns_ovh_endpoint]}";
 }
+
+# Wait till the given ${2} token is found
+# in the given domain ${1} TXT records
+function check_dns_propagation() {
+  local DOMAIN="${1}" TOKEN="${2}";
+
+  local dns_zone=$( domain $DOMAIN );
+  local subdomain=$( subdomain $DOMAIN );
+  local full_domain="$challenge_record_name.$subdomain.$dns_zone";
+  
+  while [[ true ]]
+  do
+    sleep 5;
+    local SOA=$( dig +short SOA $dns_zone| cut -d' ' -f1);
+    local tokens=$( nslookup -type=TXT "$full_domain" $SOA );
+
+    while IFS= read -r line
+    do
+      DEPLOYED_TOKEN=$( echo $line | cut -d ' ' -f4 | tr -d '"' );
+      if [[ "$TOKEN" == "$DEPLOYED_TOKEN" ]]
+      then
+        return 0;
+      fi
+    done <<< "$tokens"
+
+    echo " + The challenge token is not yet deployed, retrying in 5 secs";
+  done
+}
