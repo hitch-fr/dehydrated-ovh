@@ -293,3 +293,16 @@ function clean_challenge() {
   fi
   return 0;
 }
+
+# Return the CA response
+function invalid_challenge() {
+  local DOMAIN="${1}" RESPONSE="${2}";
+  echo "$RESPONSE";
+}
+
+# Call the given ${1} hook
+# if it is available
+HANDLER="$1"; shift
+if [[ "${HANDLER}" =~ ^(deploy_challenge|clean_challenge|invalid_challenge)$ ]]; then
+  "$HANDLER" "$@"
+fi
