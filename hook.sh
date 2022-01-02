@@ -47,3 +47,11 @@ else
     OVH_HOOK_CREDENTIALS="$local_ovh_credentials";
   fi
 fi
+
+# Array of expected OVH credential keys
+ovh_expected_keys=(
+  'dns_ovh_endpoint'
+  'dns_ovh_application_key'
+  'dns_ovh_application_secret'
+  'dns_ovh_consumer_key'
+);
