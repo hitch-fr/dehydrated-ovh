@@ -24,6 +24,6 @@ dns_ovh_application_secret = YOUR_OVH_SECRET_KEY
 dns_ovh_consumer_key       = YOUR_OVH_CONSUMER_KEY
 ```
 
-You can ether keep this file in this project's, it will be ignored from versioning or export the OVH_HOOK_CREDENTIALS environment variable that contain the path to the file before executing the dehydrated command.
+You can ether keep this file in this project's directory, it will be ignored from versioning or export the OVH_HOOK_CREDENTIALS environment variable that contain the path to the file before executing the dehydrated command.
 
 If you do not yet have your OVH API credentials, you can create them using the official [OVH credentials page](https://eu.api.ovh.com/createToken/?GET=/domain/zone/*&POST=/domain/zone/*&DELETE=/domain/zone/*). Pay attention to the Validity parameter: if you select a value that has an expiration date, you will need to regenerate new credentials. 
