@@ -18,10 +18,10 @@ This is a OVH hook for [Dehydrated](https://github.com/dehydrated-io/dehydrated)
 Just copy `ovh-credentials-example` to` ovh-credentials` in that project's directory and replace the endpoint and credentials with your own.
 
 ```ini
-dns_ovh_endpoint = ovh-eu
-dns_ovh_application_key = YOUR_OVH_APPLICATION_KEY
+dns_ovh_endpoint           = ovh-eu
+dns_ovh_application_key    = YOUR_OVH_APPLICATION_KEY
 dns_ovh_application_secret = YOUR_OVH_SECRET_KEY
-dns_ovh_consumer_key = YOUR_OVH_CONSUMER_KEY
+dns_ovh_consumer_key       = YOUR_OVH_CONSUMER_KEY
 ```
 
 You can ether keep this file in this project's, it will be ignored from versioning or export the OVH_HOOK_CREDENTIALS environment variable that contain the path to the file before executing the dehydrated command.
