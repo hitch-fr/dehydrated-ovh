@@ -109,3 +109,35 @@ done <<< "$lines"
 unset -v lines;
 unset -v ovh_expected_keys;
 unset -v ovh_expected_keys_len;
+
+# Check if dns_ovh_endpoint has been
+# found or fallback to default
+if [[ -z ${dns_ovh_endpoint+x} ]]
+then
+  readonly dns_ovh_endpoint="$ovh_default_endpoint";
+  echo "WARNING: The ovh endpoint was not found, the default endpoint $ovh_default_endpoint will be used";
+fi
+
+# Stop the script if dns_ovh_application_key
+# was not found in OVH credentials file
+if [[ -z ${dns_ovh_application_key+x} ]]
+then
+    echo "ERROR: The dns_ovh_application_key key is required";
+    exit 1;
+fi
+
+# Stop the script if dns_ovh_application_secret
+# was not found in OVH credentials file
+if [[ -z ${dns_ovh_application_secret+x} ]]
+then
+    echo "ERROR: The dns_ovh_application_secret key is required";
+    exit 1;
+fi
+
+# Stop the script if dns_ovh_consumer_key
+# was not found in OVH credentials file
+if [[ -z ${dns_ovh_consumer_key+x} ]]
+then
+    echo "ERROR: The dns_ovh_consumer_key key is required";
+    exit 1;
+fi
