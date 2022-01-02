@@ -44,3 +44,6 @@ else
     OVH_HOOK_CREDENTIALS="$local_ovh_credentials";
   fi
 fi
+
+# Loading utility functions
+source "$rootdir/utils.sh";
