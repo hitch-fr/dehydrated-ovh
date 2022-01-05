@@ -297,6 +297,7 @@ function deploy_challenge() {
 
   # CHECK RECORD
   check_dns_propagation $DOMAIN $TOKEN_VALUE;
+  return 0;
 }
 
 # Clean all challenges record for the given ${1} domain
