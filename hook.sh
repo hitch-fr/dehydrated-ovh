@@ -284,9 +284,16 @@ function deploy_challenge() {
 
   # SEND REQUEST
   local response=$( send "POST" $query $body );
+  local id=$( echo $response | grep -zoP '"id":\s*\K[^\s,]*(?=\s*[,}])' | tr -d "\0" );
+
+  if [[ $id == "" ]]
+  then
+    echo " + ERROR: Bad http response. your credentials may be wrong.";
+    echo " + $response";
+    return 1;
+  fi
 
   # STORE RESPONSE ID IN FILE
-  local id=$(echo $response | grep -zoP '"id":\s*\K[^\s,]*(?=\s*[,}])' | tr -d "\0");
   echo $id >> "$ovh_record_ids_dir/$DOMAIN.ids";
 
   mkdir -p $ovh_record_ids_dir;
