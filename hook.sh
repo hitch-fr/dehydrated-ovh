@@ -30,11 +30,11 @@ readonly ovh_record_ids_dir="$rootdir/.record_ids";
 source "$rootdir/utils.sh";
 
 # Check the credentials file existence
-if [[ ! -z ${OVH_HOOK_CREDENTIALS+x} ]]
+if [[ ! -z ${DESICCANT_HOOK_CREDENTIALS+x} ]]
 then
-  if ! is_file $OVH_HOOK_CREDENTIALS
+  if ! is_file $DESICCANT_HOOK_CREDENTIALS
   then
-    echo "ERROR: OVH credentials file not found. Please create the file $OVH_HOOK_CREDENTIALS";
+    echo "ERROR: OVH credentials file not found. Please create the file $DESICCANT_HOOK_CREDENTIALS";
     exit 1;
   fi
 else
@@ -44,7 +44,7 @@ else
     echo "ERROR: OVH credentials file not found. Please create the file $local_ovh_credentials";
     exit 1;
   else
-    OVH_HOOK_CREDENTIALS="$local_ovh_credentials";
+    DESICCANT_HOOK_CREDENTIALS="$local_ovh_credentials";
   fi
 fi
 
@@ -63,7 +63,7 @@ ovh_expected_keys_len=${#ovh_expected_keys[@]};
 
 # Store the content of the
 # OVH credentials file
-lines=$( cat $OVH_HOOK_CREDENTIALS );
+lines=$( cat $DESICCANT_HOOK_CREDENTIALS );
 
 # Loop through the credentials file and
 # create variables from expected keys
