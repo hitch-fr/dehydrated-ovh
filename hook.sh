@@ -204,7 +204,7 @@ function check_dns_propagation() {
   while [[ true ]]
   do
     sleep 5;
-    local SOA=$( dig +short SOA $dns_zone| cut -d' ' -f1);
+    local SOA=$( dig +short SOA $dns_zone| cut -d' ' -f1 | grep -v '^;;$');
     local tokens=$( nslookup -type=TXT "$record_name.$dns_zone" $SOA );
 
     while IFS= read -r line
